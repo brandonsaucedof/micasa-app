@@ -108,10 +108,10 @@ export default async function Home() {
           <ShoppingCart className="w-6 h-6 mb-1" />
           <span className="text-[10px] font-medium">Compras</span>
         </button>
-        <button className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+        <Link href="/inventory" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
           <Package className="w-6 h-6 mb-1" />
           <span className="text-[10px] font-medium">Casa</span>
-        </button>
+        </Link>
         <button className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
           <TrendingUp className="w-6 h-6 mb-1" />
           <span className="text-[10px] font-medium">Gastos</span>
