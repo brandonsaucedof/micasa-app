@@ -12,38 +12,41 @@ export default async function InventoryPage() {
     redirect("/login");
   }
 
-  // Verificar membresía
-  const { data: membership } = await supabase
-    .from("home_members")
-    .select("home_id")
-    .eq("user_id", user.id)
-    .single();
+  // Fetch membership and inventory items in parallel to reduce waterfall latency
+  // We can omit the home_id filter on inventory because RLS will automatically filter it
+  const [membershipRes, inventoryItemsRes] = await Promise.all([
+    supabase
+      .from("home_members")
+      .select("home_id")
+      .eq("user_id", user.id)
+      .single(),
+    supabase
+      .from("inventory")
+      .select(`
+        id,
+        quantity,
+        status,
+        products (
+          id,
+          name,
+          unit,
+          minimum_quantity,
+          categories (
+            id,
+            name,
+            icon
+          )
+        )
+      `)
+      .order("updated_at", { ascending: false })
+  ]);
+
+  const { data: membership } = membershipRes;
+  const { data: inventoryItems } = inventoryItemsRes;
 
   if (!membership) {
     redirect("/setup");
   }
-
-  // Obtener inventario con los productos y categorías
-  const { data: inventoryItems } = await supabase
-    .from("inventory")
-    .select(`
-      id,
-      quantity,
-      status,
-      products (
-        id,
-        name,
-        unit,
-        minimum_quantity,
-        categories (
-          id,
-          name,
-          icon
-        )
-      )
-    `)
-    .eq("home_id", membership.home_id)
-    .order("updated_at", { ascending: false });
 
   // Agrupar por categoría
   const groupedInventory: Record<string, any[]> = {};

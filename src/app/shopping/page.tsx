@@ -11,21 +11,25 @@ export default async function ShoppingPage() {
 
   if (!user) redirect("/login");
 
-  const { data: membership } = await supabase
-    .from("home_members")
-    .select("home_id")
-    .eq("user_id", user.id)
-    .single();
+  // Fetch membership and items in parallel to reduce waterfall latency
+  // We omit the home_id filter because RLS automatically filters by the user's home
+  const [membershipRes, itemsRes] = await Promise.all([
+    supabase
+      .from("home_members")
+      .select("home_id")
+      .eq("user_id", user.id)
+      .single(),
+    supabase
+      .from("shopping_items")
+      .select("id, name, is_purchased")
+      .is("purchase_id", null)
+      .order("created_at", { ascending: false })
+  ]);
+
+  const { data: membership } = membershipRes;
+  const { data: items } = itemsRes;
 
   if (!membership) redirect("/setup");
-
-  // Obtener items que no han sido asignados a una compra finalizada
-  const { data: items } = await supabase
-    .from("shopping_items")
-    .select("id, name, is_purchased")
-    .eq("home_id", membership.home_id)
-    .is("purchase_id", null)
-    .order("created_at", { ascending: false });
 
   const checkedCount = items?.filter(i => i.is_purchased).length || 0;
 
