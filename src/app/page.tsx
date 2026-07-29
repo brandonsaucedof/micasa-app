@@ -11,6 +11,20 @@ export default async function Home() {
     redirect("/login");
   }
 
+  // Fetch user's home
+  const { data: membership } = await supabase
+    .from("home_members")
+    .select("homes(id, name)")
+    .eq("user_id", user.id)
+    .limit(1)
+    .single();
+
+  if (!membership || !membership.homes) {
+    redirect("/setup");
+  }
+
+  // Type assertion since we know homes is not an array from this query
+  const currentHome = membership.homes as unknown as { id: string, name: string };
   const firstName = user.user_metadata?.name?.split(" ")[0] || "Usuario";
 
   return (
@@ -26,7 +40,7 @@ export default async function Home() {
           <div>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Hola, {firstName}</p>
             <h1 className="text-sm font-bold text-slate-900 dark:text-white flex items-center">
-              🏠 Casa Sin Asignar
+              🏠 {currentHome.name}
             </h1>
           </div>
         </div>
