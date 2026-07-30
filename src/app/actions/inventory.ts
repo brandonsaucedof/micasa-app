@@ -52,6 +52,8 @@ export async function createProduct(formData: FormData) {
   
   const homeId = await getHomeId();
   if (!homeId) return redirect("/login");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return redirect("/login");
 
   const supabase = await createClient();
 
@@ -64,7 +66,8 @@ export async function createProduct(formData: FormData) {
       name,
       unit,
       minimum_quantity: minQty,
-      is_permanent: isPermanent
+      is_permanent: isPermanent,
+      added_by: user.id
     })
     .select()
     .single();
@@ -191,4 +194,21 @@ export async function addToShoppingList(inventoryId: string) {
 
   revalidatePath("/inventory");
   revalidatePath("/shopping");
+}
+
+export async function deleteInventoryProduct(productId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const homeId = await getHomeId();
+  if (!homeId) return;
+
+  await supabase
+    .from("products")
+    .delete()
+    .eq("id", productId)
+    .eq("home_id", homeId);
+
+  revalidatePath("/inventory");
 }

@@ -32,6 +32,9 @@ export default async function InventoryPage({
           unit,
           minimum_quantity,
           is_permanent,
+          users (
+            name
+          ),
           categories (
             id,
             name,
@@ -66,11 +69,13 @@ export default async function InventoryPage({
       }
       targetGroup[categoryName].push({
         id: item.id,
+        productId: product.id,
         name: product.name,
         unit: product.unit,
         quantity: item.quantity,
         minQuantity: product.minimum_quantity,
-        status: item.status
+        status: item.status,
+        addedByName: product.users?.name || "Desconocido"
       });
     });
   }
@@ -166,7 +171,7 @@ export default async function InventoryPage({
           </button>
           <Link href="/expenses" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
             <TrendingUp className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-bold">Gastos</span>
+            <span className="text-[10px] font-bold">Analytics</span>
           </Link>
         </nav>
       </div>

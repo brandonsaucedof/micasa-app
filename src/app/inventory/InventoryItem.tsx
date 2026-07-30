@@ -1,19 +1,21 @@
 "use client";
 
 import { useTransition, useState } from "react";
-import { updateInventoryQuantity, updateInventoryStatus, addToShoppingList } from "@/app/actions/inventory";
-import { Minus, Plus, ChevronDown, ShoppingCart, CheckCircle2 } from "lucide-react";
+import { updateInventoryQuantity, updateInventoryStatus, addToShoppingList, deleteInventoryProduct } from "@/app/actions/inventory";
+import { Minus, Plus, ChevronDown, ShoppingCart, CheckCircle2, Trash2 } from "lucide-react";
 
 type ItemProps = {
   id: string;
+  productId: string;
   name: string;
   unit: string;
   quantity: number;
   minQuantity: number;
   status: string;
+  addedByName?: string;
 };
 
-export default function InventoryItem({ id, name, unit, quantity, minQuantity, status }: ItemProps) {
+export default function InventoryItem({ id, productId, name, unit, quantity, minQuantity, status, addedByName }: ItemProps) {
   const [isPending, startTransition] = useTransition();
   const [optimisticQty, setOptimisticQty] = useState(quantity);
   const [optimisticStatus, setOptimisticStatus] = useState(status);
@@ -51,6 +53,14 @@ export default function InventoryItem({ id, name, unit, quantity, minQuantity, s
     });
   };
 
+  const handleDelete = () => {
+    if (confirm(`¿Estás seguro de que deseas eliminar "${name}" del inventario?`)) {
+      startTransition(() => {
+        deleteInventoryProduct(productId);
+      });
+    }
+  };
+
   const getStatusColor = (s: string) => {
     if (s === "suficiente") return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
     if (s === "poco") return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
@@ -60,7 +70,12 @@ export default function InventoryItem({ id, name, unit, quantity, minQuantity, s
   return (
     <div className={`p-4 rounded-3xl glass-card flex flex-col space-y-4 transition-all duration-300 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${isPending ? 'opacity-70 scale-95' : 'opacity-100'} ${getStatusColor(optimisticStatus)} border`}>
       <div className="flex justify-between items-start">
-        <h3 className="font-extrabold text-slate-900 dark:text-white text-base leading-tight pr-2">{name}</h3>
+        <div>
+          <h3 className="font-extrabold text-slate-900 dark:text-white text-base leading-tight pr-2">{name}</h3>
+          {addedByName && (
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Añadido por: {addedByName}</p>
+          )}
+        </div>
         
         {/* Status Dropdown */}
         <div className="relative flex-shrink-0 z-20">
@@ -85,6 +100,11 @@ export default function InventoryItem({ id, name, unit, quantity, minQuantity, s
               <button onClick={() => handleStatusChange("suficiente")} className="w-full text-left px-4 py-3 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">Suficiente</button>
               <button onClick={() => handleStatusChange("poco")} className="w-full text-left px-4 py-3 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">Poco</button>
               <button onClick={() => handleStatusChange("agotado")} className="w-full text-left px-4 py-3 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Agotado</button>
+              <div className="border-t border-slate-100 dark:border-slate-700/50"></div>
+              <button onClick={handleDelete} disabled={isPending} className="w-full flex items-center px-4 py-3 text-xs font-bold text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50">
+                <Trash2 className="w-3 h-3 mr-2" />
+                Eliminar
+              </button>
             </div>
           )}
         </div>

@@ -51,6 +51,22 @@ export default async function Home({
 
   const totalSpent = purchases?.reduce((sum, p) => sum + Number(p.total_amount), 0) || 0;
 
+  // Fetch quick stats
+  const [shoppingCountRes, inventoryCountRes] = await Promise.all([
+    supabase
+      .from("shopping_items")
+      .select("id", { count: "exact", head: true })
+      .eq("home_id", currentHome.id)
+      .eq("is_purchased", false),
+    supabase
+      .from("inventory")
+      .select("id", { count: "exact", head: true })
+      .eq("home_id", currentHome.id)
+  ]);
+
+  const shoppingCount = shoppingCountRes.count || 0;
+  const inventoryCount = inventoryCountRes.count || 0;
+
   return (
     <div className="flex-1 flex flex-col relative h-full">
       
@@ -109,7 +125,7 @@ export default async function Home({
             <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <ShoppingCart className="w-5 h-5" />
             </div>
-            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">0</h3>
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">{shoppingCount}</h3>
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">Por comprar</p>
           </Link>
           
@@ -117,7 +133,7 @@ export default async function Home({
             <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Package className="w-5 h-5" />
             </div>
-            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">0</h3>
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">{inventoryCount}</h3>
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">En inventario</p>
           </Link>
         </div>
@@ -160,7 +176,7 @@ export default async function Home({
           </Link>
           <Link href="/expenses" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
             <TrendingUp className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-bold">Gastos</span>
+            <span className="text-[10px] font-bold">Analytics</span>
           </Link>
         </nav>
       </div>
