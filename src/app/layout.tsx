@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
+import InstallPrompt from "@/components/InstallPrompt";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -39,6 +40,7 @@ export default function RootLayout({
         <main className="flex-1 flex flex-col mx-auto w-full max-w-md bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-black/50 overflow-hidden relative">
           {children}
         </main>
+        <InstallPrompt />
         <script
           dangerouslySetInnerHTML={{
             __html: `
