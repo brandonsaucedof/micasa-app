@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from "react";
 import { updateInventoryQuantity, updateInventoryStatus, addToShoppingList, deleteInventoryProduct } from "@/app/actions/inventory";
-import { Minus, Plus, ChevronDown, ShoppingCart, CheckCircle2, Trash2 } from "lucide-react";
+import { Minus, Plus, ShoppingCart, CheckCircle2, Trash2, X, Settings2 } from "lucide-react";
 
 type ItemProps = {
   id: string;
@@ -19,10 +19,13 @@ export default function InventoryItem({ id, productId, name, unit, quantity, min
   const [isPending, startTransition] = useTransition();
   const [optimisticQty, setOptimisticQty] = useState(quantity);
   const [optimisticStatus, setOptimisticStatus] = useState(status);
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [addedToList, setAddedToList] = useState(false);
+  
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleAddToList = () => {
+  const handleAddToList = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation(); // Prevent opening modal
     setAddedToList(true);
     startTransition(() => {
       addToShoppingList(id);
@@ -47,7 +50,6 @@ export default function InventoryItem({ id, productId, name, unit, quantity, min
 
   const handleStatusChange = (newStatus: string) => {
     setOptimisticStatus(newStatus);
-    setShowStatusMenu(false);
     startTransition(() => {
       updateInventoryStatus(id, newStatus);
     });
@@ -55,6 +57,7 @@ export default function InventoryItem({ id, productId, name, unit, quantity, min
 
   const handleDelete = () => {
     if (confirm(`¿Estás seguro de que deseas eliminar "${name}" del inventario?`)) {
+      setIsModalOpen(false);
       startTransition(() => {
         deleteInventoryProduct(productId);
       });
@@ -68,74 +71,131 @@ export default function InventoryItem({ id, productId, name, unit, quantity, min
   };
 
   return (
-    <div className={`p-4 rounded-3xl glass-card flex flex-col space-y-4 transition-all duration-300 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${isPending ? 'opacity-70 scale-95' : 'opacity-100'} ${getStatusColor(optimisticStatus)} border ${showStatusMenu ? 'z-50 relative' : ''}`}>
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="font-extrabold text-slate-900 dark:text-white text-base leading-tight pr-2">{name}</h3>
+    <>
+      {/* Clean Card UI */}
+      <div 
+        onClick={() => setIsModalOpen(true)}
+        className={`p-4 rounded-3xl glass-card flex flex-col justify-between transition-all duration-300 transform hover:-translate-y-1 shadow-sm hover:shadow-md cursor-pointer ${isPending ? 'opacity-70 scale-95' : 'opacity-100'} ${getStatusColor(optimisticStatus)} border min-h-[140px] relative overflow-hidden group`}
+      >
+        {/* Top Info */}
+        <div className="z-10 relative">
+          <h3 className="font-extrabold text-slate-900 dark:text-white text-base leading-tight pr-8">{name}</h3>
           {addedByName && (
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Añadido por: {addedByName}</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 opacity-70">Añadido por: {addedByName}</p>
           )}
         </div>
-        {/* Actions Container */}
-        <div className="flex items-center space-x-2 relative z-20 shrink-0">
+
+        {/* Configuration Icon (Visible on hover) */}
+        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10 text-slate-400">
+          <Settings2 className="w-4 h-4" />
+        </div>
+
+        {/* Bottom Bar: Qty and Cart */}
+        <div className="flex items-end justify-between mt-auto z-10 relative">
+          <div className="flex items-baseline space-x-1">
+            <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{optimisticQty}</span>
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{unit}</span>
+          </div>
           
           <button
             onClick={handleAddToList}
             disabled={isPending || addedToList}
-            className="flex items-center space-x-1 p-2 rounded-full bg-primary-500 text-white shadow-sm hover:bg-primary-600 transition-colors disabled:opacity-50 shrink-0"
+            className="flex items-center space-x-1 p-2.5 rounded-full bg-primary-500 text-white shadow-md hover:bg-primary-600 transition-colors disabled:opacity-50 shrink-0 transform active:scale-90"
           >
-            {addedToList ? <CheckCircle2 className="w-3.5 h-3.5" /> : <ShoppingCart className="w-3.5 h-3.5" />}
+            {addedToList ? <CheckCircle2 className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
           </button>
-
-          {/* Status Dropdown */}
-          <div className="relative">
-            <button 
-              onClick={() => setShowStatusMenu(!showStatusMenu)}
-              className="flex items-center space-x-1 px-2.5 py-1.5 rounded-full bg-white/60 dark:bg-slate-900/60 text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm border border-white/20 dark:border-slate-700/30 hover:bg-white dark:hover:bg-slate-800 transition-colors"
-            >
-              <span>{optimisticStatus}</span>
-              <ChevronDown className="w-3 h-3" />
-            </button>
-            
-            {showStatusMenu && (
-              <div className="absolute right-0 mt-2 w-32 bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/20 border border-slate-100 dark:border-slate-700/50 overflow-hidden z-50 animate-pop-in origin-top-right">
-                <button onClick={() => handleStatusChange("suficiente")} className="w-full text-left px-4 py-3 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">Suficiente</button>
-                <button onClick={() => handleStatusChange("poco")} className="w-full text-left px-4 py-3 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">Poco</button>
-                <button onClick={() => handleStatusChange("agotado")} className="w-full text-left px-4 py-3 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Agotado</button>
-                <div className="border-t border-slate-100 dark:border-slate-700/50"></div>
-                <button onClick={handleDelete} disabled={isPending} className="w-full flex items-center px-4 py-3 text-xs font-bold text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50">
-                  <Trash2 className="w-3 h-3 mr-2" />
-                  Eliminar
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-end justify-between mt-auto">
-        <div className="flex items-baseline space-x-1">
-          <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{optimisticQty}</span>
-          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{unit}</span>
         </div>
         
-        <div className="flex items-center space-x-1.5 bg-white/50 dark:bg-slate-900/50 p-1.5 rounded-2xl backdrop-blur-sm border border-white/20 dark:border-slate-700/30">
-          <button 
-            onClick={() => handleQtyChange(-1)}
-            disabled={optimisticQty <= 0 || isPending}
-            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 shadow-sm hover:text-emerald-600 dark:hover:text-emerald-400 disabled:opacity-40 transition-all active:scale-90"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-          <button 
-            onClick={() => handleQtyChange(1)}
-            disabled={isPending}
-            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 shadow-sm hover:text-emerald-600 dark:hover:text-emerald-400 transition-all active:scale-90"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
+        {/* Status indicator bar (Background accent) */}
+        <div className={`absolute bottom-0 left-0 right-0 h-1.5 ${optimisticStatus === 'suficiente' ? 'bg-emerald-400' : optimisticStatus === 'poco' ? 'bg-amber-400' : 'bg-red-400'} opacity-20 group-hover:opacity-40 transition-opacity`} />
       </div>
-    </div>
+
+      {/* Configuration Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-fade-in p-4 sm:p-0">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
+          
+          <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 shadow-2xl border border-white/20 dark:border-slate-800 animate-slide-up overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white leading-tight">{name}</h2>
+                <p className="text-sm font-bold text-slate-500 mt-1">Configuración del producto</p>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Quantity Modifier */}
+              <div className="glass-panel p-4 rounded-3xl flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Cantidad Actual</p>
+                  <div className="flex items-baseline space-x-1">
+                    <span className="text-2xl font-black text-slate-900 dark:text-white">{optimisticQty}</span>
+                    <span className="text-sm font-bold text-slate-500">{unit}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2 bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                  <button 
+                    onClick={() => handleQtyChange(-1)}
+                    disabled={optimisticQty <= 0 || isPending}
+                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-emerald-500 disabled:opacity-40 transition-all active:scale-90"
+                  >
+                    <Minus className="w-5 h-5" />
+                  </button>
+                  <button 
+                    onClick={() => handleQtyChange(1)}
+                    disabled={isPending}
+                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-emerald-500 transition-all active:scale-90"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Selector */}
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 ml-2">Estado Manual</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <button 
+                    onClick={() => handleStatusChange("suficiente")} 
+                    className={`py-3 px-2 rounded-2xl text-xs font-black transition-colors ${optimisticStatus === "suficiente" ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                  >
+                    Suficiente
+                  </button>
+                  <button 
+                    onClick={() => handleStatusChange("poco")} 
+                    className={`py-3 px-2 rounded-2xl text-xs font-black transition-colors ${optimisticStatus === "poco" ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                  >
+                    Poco
+                  </button>
+                  <button 
+                    onClick={() => handleStatusChange("agotado")} 
+                    className={`py-3 px-2 rounded-2xl text-xs font-black transition-colors ${optimisticStatus === "agotado" ? 'bg-red-500 text-white shadow-md shadow-red-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                  >
+                    Agotado
+                  </button>
+                </div>
+              </div>
+
+              {/* Delete Area */}
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button 
+                  onClick={handleDelete} 
+                  disabled={isPending} 
+                  className="w-full flex items-center justify-center px-4 py-4 rounded-2xl bg-red-50 dark:bg-red-900/10 text-red-500 text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 group"
+                >
+                  <Trash2 className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                  Eliminar Producto Definitivamente
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -3,6 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -36,19 +37,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${outfit.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans selection:bg-primary-500/30 relative">
-        {/* Dynamic Animated Background */}
-        <div className="fixed inset-0 z-[-1] bg-slate-50 dark:bg-slate-950 overflow-hidden">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-200/50 dark:bg-primary-900/30 blur-3xl animate-float"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-200/50 dark:bg-indigo-900/30 blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] rounded-full bg-purple-200/50 dark:bg-purple-900/20 blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
-        </div>
+      <body className="min-h-full flex flex-col font-sans selection:bg-primary-500/30 relative bg-slate-50 dark:bg-slate-950">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {/* Dynamic Animated Background */}
+          <div className="fixed inset-0 z-[-1] bg-slate-50 dark:bg-slate-950 overflow-hidden">
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-200/50 dark:bg-primary-900/30 blur-3xl animate-float"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-200/50 dark:bg-indigo-900/30 blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] rounded-full bg-purple-200/50 dark:bg-purple-900/20 blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
+          </div>
 
-        <main className="flex-1 flex flex-col mx-auto w-full max-w-md glass shadow-2xl shadow-primary-500/5 dark:shadow-black/50 overflow-hidden relative">
-          {children}
-        </main>
-        <InstallPrompt />
-        <ServiceWorkerRegister />
+          <main className="flex-1 flex flex-col mx-auto w-full max-w-md glass shadow-2xl shadow-primary-500/5 dark:shadow-black/50 overflow-hidden relative">
+            {children}
+          </main>
+          <InstallPrompt />
+          <ServiceWorkerRegister />
+        </ThemeProvider>
       </body>
     </html>
   );

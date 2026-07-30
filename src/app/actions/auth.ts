@@ -58,3 +58,30 @@ export async function logout() {
   revalidatePath("/", "layout");
   redirect("/login");
 }
+
+export async function updateProfile(formData: FormData) {
+  const name = formData.get("name") as string;
+  if (!name || name.trim() === "") return;
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // Actualizar metadata
+  const { error: authError } = await supabase.auth.updateUser({
+    data: { name }
+  });
+
+  if (authError) throw new Error(authError.message);
+
+  // Actualizar tabla publica users
+  const { error: dbError } = await supabase
+    .from("users")
+    .update({ name })
+    .eq("id", user.id);
+
+  if (dbError) throw new Error(dbError.message);
+
+  revalidatePath("/settings");
+  revalidatePath("/");
+}
