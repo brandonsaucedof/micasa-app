@@ -52,10 +52,11 @@ export async function createProduct(formData: FormData) {
   
   const homeId = await getHomeId();
   if (!homeId) return redirect("/login");
+  
+  const supabase = await createClient();
+  
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return redirect("/login");
-
-  const supabase = await createClient();
 
   // 1. Crear producto
   const { data: product, error: productError } = await supabase
