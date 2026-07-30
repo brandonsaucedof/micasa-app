@@ -1,12 +1,20 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Package, Plus, Search, ShoppingCart, TrendingUp, Home as HomeIcon } from "lucide-react";
+import { Package, Plus, Search, ShoppingCart, TrendingUp, Home as HomeIcon, Archive } from "lucide-react";
 import InventoryItem from "./InventoryItem";
+import InventoryTabs from "./InventoryTabs";
 
-export default async function InventoryPage() {
+export default async function InventoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+
+  const params = await searchParams;
+  const currentTab = params?.tab || "active";
 
   if (!user) {
     redirect("/login");
@@ -23,6 +31,7 @@ export default async function InventoryPage() {
           name,
           unit,
           minimum_quantity,
+          is_permanent,
           categories (
             id,
             name,
@@ -39,17 +48,23 @@ export default async function InventoryPage() {
     redirect("/setup");
   }
 
-  const groupedInventory: Record<string, any[]> = {};
+  const activeInventory: Record<string, any[]> = {};
+  const archivedInventory: Record<string, any[]> = {};
   
   if (inventoryItems) {
     inventoryItems.forEach(item => {
       const product = item.products as any;
       if (!product) return;
+      
+      const isArchived = product.is_permanent === false && item.quantity <= 0;
       const categoryName = product.categories?.name || "Sin Categoría";
-      if (!groupedInventory[categoryName]) {
-        groupedInventory[categoryName] = [];
+      
+      const targetGroup = isArchived ? archivedInventory : activeInventory;
+
+      if (!targetGroup[categoryName]) {
+        targetGroup[categoryName] = [];
       }
-      groupedInventory[categoryName].push({
+      targetGroup[categoryName].push({
         id: item.id,
         name: product.name,
         unit: product.unit,
@@ -59,6 +74,8 @@ export default async function InventoryPage() {
       });
     });
   }
+
+  const displayedInventory = currentTab === "archived" ? archivedInventory : activeInventory;
 
   return (
     <div className="flex-1 flex flex-col relative h-full">
@@ -77,25 +94,37 @@ export default async function InventoryPage() {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto px-6 py-6 space-y-8 pb-40 no-scrollbar z-10 animate-slide-up">
         
-        {Object.keys(groupedInventory).length === 0 ? (
+        <InventoryTabs currentTab={currentTab} />
+
+        {Object.keys(displayedInventory).length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
             <div className="w-24 h-24 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 opacity-50 relative">
               <div className="absolute inset-0 bg-emerald-500 rounded-full blur-xl opacity-20"></div>
-              <Package className="w-10 h-10 text-slate-400 dark:text-slate-500 relative z-10" />
+              {currentTab === "archived" ? (
+                <Archive className="w-10 h-10 text-slate-400 dark:text-slate-500 relative z-10" />
+              ) : (
+                <Package className="w-10 h-10 text-slate-400 dark:text-slate-500 relative z-10" />
+              )}
             </div>
-            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">Tu inventario está vacío</h2>
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">
+              {currentTab === "archived" ? "No hay productos archivados" : "Tu inventario está vacío"}
+            </h2>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-8 max-w-xs">
-              Añade los productos que tienes en casa para empezar a llevar el control.
+              {currentTab === "archived" 
+                ? "Los productos de 'una sola vez' aparecerán aquí cuando se agoten." 
+                : "Añade los productos que tienes en casa para empezar a llevar el control."}
             </p>
-            <Link 
-              href="/inventory/new"
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold py-3.5 px-6 rounded-2xl transition-all shadow-lg shadow-emerald-500/30 transform hover:-translate-y-1 active:scale-95"
-            >
-              Añadir primer producto
-            </Link>
+            {currentTab === "active" && (
+              <Link 
+                href="/inventory/new"
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold py-3.5 px-6 rounded-2xl transition-all shadow-lg shadow-emerald-500/30 transform hover:-translate-y-1 active:scale-95"
+              >
+                Añadir primer producto
+              </Link>
+            )}
           </div>
         ) : (
-          Object.keys(groupedInventory).map((categoryName, index) => (
+          Object.keys(displayedInventory).map((categoryName, index) => (
             <div key={categoryName} className="space-y-4 animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="flex items-center space-x-2">
                 <div className="h-1.5 w-6 bg-emerald-500 rounded-full"></div>
@@ -104,7 +133,7 @@ export default async function InventoryPage() {
                 </h2>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                {groupedInventory[categoryName].map(item => (
+                {displayedInventory[categoryName].map(item => (
                   <InventoryItem key={item.id} {...item} />
                 ))}
               </div>

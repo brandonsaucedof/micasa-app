@@ -3,10 +3,18 @@ import { LogOut, Plus, ShoppingCart, Package, TrendingUp, Bell, User, Settings, 
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export default async function Home() {
+import MonthSelector from "@/components/MonthSelector";
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  const params = await searchParams;
+  
   if (!user) {
     redirect("/login");
   }
@@ -26,6 +34,22 @@ export default async function Home() {
   // Type assertion since we know homes is not an array from this query
   const currentHome = membership.homes as unknown as { id: string, name: string };
   const firstName = user.user_metadata?.name?.split(" ")[0] || "Usuario";
+
+  // Calculate start and end dates for selected month
+  const today = new Date();
+  const selectedMonthStr = params?.month || `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+  const startDate = new Date(selectedMonthStr + "-01T00:00:00Z");
+  const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1).toISOString();
+
+  // Fetch total purchases for this month
+  const { data: purchases } = await supabase
+    .from("purchases")
+    .select("total_amount")
+    .eq("home_id", currentHome.id)
+    .gte("created_at", startDate.toISOString())
+    .lt("created_at", endDate);
+
+  const totalSpent = purchases?.reduce((sum, p) => sum + Number(p.total_amount), 0) || 0;
 
   return (
     <div className="flex-1 flex flex-col relative h-full">
@@ -58,11 +82,12 @@ export default async function Home() {
           <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-purple-500/40 rounded-full blur-2xl"></div>
           
           <div className="relative z-10">
-            <div className="flex items-center space-x-2 mb-1">
+            <MonthSelector currentMonthStr={selectedMonthStr} />
+            <div className="flex items-center space-x-2 mb-1 justify-center">
               <Zap className="w-4 h-4 text-yellow-300" />
               <p className="text-xs font-bold text-primary-100 uppercase tracking-widest">Resumen del mes</p>
             </div>
-            <h2 className="text-3xl font-extrabold mb-4 mt-2">Bs 0 <span className="text-sm font-medium text-primary-200">gastados</span></h2>
+            <h2 className="text-3xl font-extrabold mb-4 mt-2 text-center">Bs {totalSpent.toFixed(2)} <span className="text-sm font-medium text-primary-200">gastados</span></h2>
             
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20">
               <div className="flex items-center space-x-2">

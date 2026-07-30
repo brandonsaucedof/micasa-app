@@ -21,6 +21,7 @@ async function getHomeId() {
 export async function addShoppingItem(formData: FormData) {
   const name = formData.get("name") as string;
   const productId = formData.get("product_id") as string || null;
+  const planningWeek = formData.get("planning_week") as string || "Semana 1";
   
   const { user, homeId } = await getHomeId();
   if (!homeId || !user) return redirect("/login");
@@ -30,7 +31,8 @@ export async function addShoppingItem(formData: FormData) {
     home_id: homeId,
     name,
     product_id: productId,
-    added_by: user.id
+    added_by: user.id,
+    planning_week: planningWeek
   });
 
   revalidatePath("/shopping");

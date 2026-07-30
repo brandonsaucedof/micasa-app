@@ -112,6 +112,15 @@ export default async function NewProductPage() {
               <input name="minimum_quantity" type="number" step="0.1" min="0" defaultValue="0" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
             </div>
 
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de producto</label>
+              <select name="is_permanent" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none">
+                <option value="true">Primordial / Permanente</option>
+                <option value="false">Solo por esta vez</option>
+              </select>
+              <p className="text-[10px] text-slate-500 mb-1">Los productos permanentes se quedan en la lista aunque se agoten. Los demás se archivan.</p>
+            </div>
+
             <div className="pt-4">
               <button type="submit" className="w-full flex items-center justify-center py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors shadow-sm shadow-emerald-200 dark:shadow-emerald-900/20">
                 <Save className="w-5 h-5 mr-2" />

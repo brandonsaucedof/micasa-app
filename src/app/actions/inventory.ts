@@ -48,6 +48,7 @@ export async function createProduct(formData: FormData) {
   const unit = formData.get("unit") as string || "un";
   const minQty = parseFloat(formData.get("minimum_quantity") as string) || 0;
   const initialQty = parseFloat(formData.get("initial_quantity") as string) || 0;
+  const isPermanent = formData.get("is_permanent") === "true";
   
   const homeId = await getHomeId();
   if (!homeId) return redirect("/login");
@@ -62,7 +63,8 @@ export async function createProduct(formData: FormData) {
       category_id: categoryId || null,
       name,
       unit,
-      minimum_quantity: minQty
+      minimum_quantity: minQty,
+      is_permanent: isPermanent
     })
     .select()
     .single();
@@ -110,6 +112,37 @@ export async function updateInventoryQuantity(inventoryId: string, newQuantity: 
     })
     .eq("id", inventoryId);
 
+  // Automatic addition to shopping list if exhausted or below minimum
+  if (status === "agotado" || status === "poco") {
+    // Check if it's already in the shopping list (unpurchased)
+    const { data: inventoryItem } = await supabase
+      .from("inventory")
+      .select("product_id, home_id, products(name)")
+      .eq("id", inventoryId)
+      .single();
+
+    if (inventoryItem) {
+      const { data: existing } = await supabase
+        .from("shopping_items")
+        .select("id")
+        .eq("product_id", inventoryItem.product_id)
+        .is("purchase_id", null)
+        .single();
+
+      // If not in active shopping list, add it automatically
+      if (!existing) {
+        await supabase
+          .from("shopping_items")
+          .insert({
+            home_id: inventoryItem.home_id,
+            product_id: inventoryItem.product_id,
+            name: (inventoryItem.products as any)?.name || "Producto sin nombre",
+            planning_week: 'Semana 1' // Default week
+          });
+      }
+    }
+  }
+
   revalidatePath("/inventory");
 }
 
@@ -125,4 +158,37 @@ export async function updateInventoryStatus(inventoryId: string, newStatus: stri
     .eq("id", inventoryId);
 
   revalidatePath("/inventory");
+}
+
+export async function addToShoppingList(inventoryId: string) {
+  const supabase = await createClient();
+  
+  const { data: inventoryItem } = await supabase
+    .from("inventory")
+    .select("product_id, home_id, products(name)")
+    .eq("id", inventoryId)
+    .single();
+
+  if (inventoryItem) {
+    const { data: existing } = await supabase
+      .from("shopping_items")
+      .select("id")
+      .eq("product_id", inventoryItem.product_id)
+      .is("purchase_id", null)
+      .single();
+
+    if (!existing) {
+      await supabase
+        .from("shopping_items")
+        .insert({
+          home_id: inventoryItem.home_id,
+          product_id: inventoryItem.product_id,
+          name: (inventoryItem.products as any)?.name || "Producto sin nombre",
+          planning_week: 'Semana 1'
+        });
+    }
+  }
+
+  revalidatePath("/inventory");
+  revalidatePath("/shopping");
 }

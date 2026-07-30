@@ -3,11 +3,25 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { TrendingUp, Receipt, Calendar, Package, ShoppingCart, Home as HomeIcon } from "lucide-react";
 
-export default async function ExpensesPage() {
+import MonthSelector from "@/components/MonthSelector";
+
+export default async function ExpensesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  const params = await searchParams;
+  
+  // Calculate start and end dates for selected month
+  const today = new Date();
+  const selectedMonthStr = params?.month || `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+  const startDate = new Date(selectedMonthStr + "-01T00:00:00Z");
+  const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1).toISOString();
 
   // Ejecutar ambas consultas en paralelo para eliminar el lag (waterfall).
   // La tabla 'purchases' usa RLS, por lo que no es estrictamente necesario 
@@ -24,6 +38,8 @@ export default async function ExpensesPage() {
           name
         )
       `)
+      .gte("created_at", startDate.toISOString())
+      .lt("created_at", endDate)
       .order("created_at", { ascending: false })
   ]);
 
@@ -40,14 +56,10 @@ export default async function ExpensesPage() {
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute -left-10 bottom-0 w-40 h-40 bg-purple-500/30 rounded-full blur-3xl"></div>
         
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-8">
-            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md shadow-inner border border-white/20">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <p className="text-primary-100 text-sm font-bold uppercase tracking-widest mb-2">Gasto Acumulado</p>
-          <h1 className="text-5xl font-black text-white flex items-center">
+        <div className="relative z-10 text-center">
+          <MonthSelector currentMonthStr={selectedMonthStr} />
+          <p className="text-primary-100 text-sm font-bold uppercase tracking-widest mb-2 mt-4">Gasto Mensual</p>
+          <h1 className="text-5xl font-black text-white flex items-center justify-center">
             <span className="text-3xl font-medium opacity-80 mr-2">Bs</span>
             {totalSpent.toFixed(2)}
           </h1>

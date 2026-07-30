@@ -16,7 +16,7 @@ export async function login(formData: FormData) {
   });
 
   if (error) {
-    return redirect("/login?message=No+se+pudo+autenticar+al+usuario");
+    return redirect("/login?error=No+se+pudo+autenticar+al+usuario");
   }
 
   revalidatePath("/", "layout");
@@ -42,13 +42,13 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
-    return redirect("/register?message=Error+al+crear+la+cuenta");
+    return redirect("/register?error=Error+al+crear+la+cuenta");
   }
 
   // Nota: si tienes confirmación de email activada en supabase
   // el usuario será redirigido con éxito pero deberá confirmar.
   // Como no sabemos la config del user, mostraremos mensaje genérico.
-  return redirect("/login?message=Revisa+tu+correo+para+confirmar+tu+cuenta");
+  return redirect("/login?success=Cuenta+creada.+Revisa+tu+correo+para+confirmar");
 }
 
 export async function logout() {

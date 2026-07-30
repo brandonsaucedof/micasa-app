@@ -5,10 +5,10 @@ import { UserPlus, Mail, Lock, User, ArrowRight, AlertCircle, Sparkles } from "l
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string }>;
+  searchParams: Promise<{ message?: string; error?: string }>;
 }) {
   const params = await searchParams;
-  const message = params?.message;
+  const errorMsg = params?.error || params?.message;
 
   return (
     <div className="flex-1 flex flex-col justify-center items-center p-6 min-h-screen">
@@ -37,10 +37,10 @@ export default async function RegisterPage({
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Completa tus datos para empezar</p>
         </div>
 
-        {message && (
+        {errorMsg && (
           <div className="mb-6 bg-red-500/10 text-red-600 dark:text-red-400 p-3.5 rounded-xl flex items-start text-sm border border-red-500/20 animate-pop-in">
             <AlertCircle className="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5" />
-            <p className="font-medium">{message}</p>
+            <p className="font-medium">{errorMsg}</p>
           </div>
         )}
 

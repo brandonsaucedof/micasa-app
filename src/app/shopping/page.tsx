@@ -5,15 +5,25 @@ import { ShoppingCart, Plus, ArrowRight, Package, TrendingUp, Home as HomeIcon }
 import ShoppingItem from "./ShoppingItem";
 import { addShoppingItem } from "@/app/actions/shopping";
 
-export default async function ShoppingPage() {
+import WeekSelector from "./WeekSelector";
+
+export default async function ShoppingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+
+  const params = await searchParams;
+  const currentWeek = params?.week || "Semana 1";
 
   if (!user) redirect("/login");
 
   const [membershipRes, itemsRes] = await Promise.all([
     supabase.from("home_members").select("home_id").eq("user_id", user.id).single(),
-    supabase.from("shopping_items").select("id, name, is_purchased").is("purchase_id", null).order("created_at", { ascending: false })
+    // Request planning_week. It requires the new migration!
+    supabase.from("shopping_items").select("id, name, is_purchased, planning_week").is("purchase_id", null).order("created_at", { ascending: false })
   ]);
 
   const { data: membership } = membershipRes;
@@ -21,7 +31,9 @@ export default async function ShoppingPage() {
 
   if (!membership) redirect("/setup");
 
-  const checkedCount = items?.filter(i => i.is_purchased).length || 0;
+  // Filter items by current week (if planning_week is null, assume Semana 1)
+  const currentItems = items?.filter(i => (i.planning_week || "Semana 1") === currentWeek) || [];
+  const checkedCount = currentItems.filter(i => i.is_purchased).length || 0;
 
   return (
     <div className="flex-1 flex flex-col relative h-full">
@@ -38,8 +50,11 @@ export default async function ShoppingPage() {
 
       <main className="flex-1 overflow-y-auto px-6 py-6 space-y-6 pb-40 no-scrollbar z-10 animate-slide-up">
         
+        <WeekSelector currentWeek={currentWeek} />
+
         {/* Add Quick Item */}
         <form action={addShoppingItem} className="flex space-x-3 group">
+          <input type="hidden" name="planning_week" value={currentWeek} />
           <input 
             type="text" 
             name="name"
@@ -54,16 +69,16 @@ export default async function ShoppingPage() {
 
         {/* List of Items */}
         <div className="space-y-3">
-          {items?.length === 0 ? (
+          {currentItems.length === 0 ? (
             <div className="text-center py-16 flex flex-col items-center justify-center animate-fade-in">
               <div className="w-24 h-24 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 opacity-50">
                 <ShoppingCart className="w-10 h-10 text-slate-400 dark:text-slate-500" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Todo listo</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Tu lista de compras está vacía.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Tu lista para la {currentWeek.toLowerCase()} está vacía.</p>
             </div>
           ) : (
-            items?.map(item => (
+            currentItems.map(item => (
               <ShoppingItem key={item.id} id={item.id} name={item.name} isPurchased={item.is_purchased} />
             ))
           )}

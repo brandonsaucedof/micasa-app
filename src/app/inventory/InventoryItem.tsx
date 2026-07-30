@@ -1,8 +1,8 @@
 "use client";
 
 import { useTransition, useState } from "react";
-import { updateInventoryQuantity, updateInventoryStatus } from "@/app/actions/inventory";
-import { Minus, Plus, ChevronDown } from "lucide-react";
+import { updateInventoryQuantity, updateInventoryStatus, addToShoppingList } from "@/app/actions/inventory";
+import { Minus, Plus, ChevronDown, ShoppingCart, CheckCircle2 } from "lucide-react";
 
 type ItemProps = {
   id: string;
@@ -18,6 +18,15 @@ export default function InventoryItem({ id, name, unit, quantity, minQuantity, s
   const [optimisticQty, setOptimisticQty] = useState(quantity);
   const [optimisticStatus, setOptimisticStatus] = useState(status);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [addedToList, setAddedToList] = useState(false);
+
+  const handleAddToList = () => {
+    setAddedToList(true);
+    startTransition(() => {
+      addToShoppingList(id);
+      setTimeout(() => setAddedToList(false), 2000);
+    });
+  };
 
   const handleQtyChange = (delta: number) => {
     const newQty = Math.max(0, optimisticQty + delta);
@@ -61,6 +70,14 @@ export default function InventoryItem({ id, name, unit, quantity, minQuantity, s
           >
             <span>{optimisticStatus}</span>
             <ChevronDown className="w-3 h-3" />
+          </button>
+
+          <button
+            onClick={handleAddToList}
+            disabled={isPending || addedToList}
+            className="ml-2 flex items-center space-x-1 px-2.5 py-1.5 rounded-full bg-primary-500 text-white text-[10px] font-black uppercase tracking-wider shadow-sm hover:bg-primary-600 transition-colors disabled:opacity-50"
+          >
+            {addedToList ? <CheckCircle2 className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
           </button>
           
           {showStatusMenu && (
