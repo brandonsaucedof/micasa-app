@@ -12,8 +12,7 @@ const BASE = self.registration.scope;
 const STATIC_FILES = [
   '/',
   '/manifest.json',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/icon.svg'
 ];
 
 // ── Install: precache all static assets ──

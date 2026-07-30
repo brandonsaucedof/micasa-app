@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background with premium gradient -->
+  <defs>
+    <linearGradient id="premiumGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="50%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#9333ea" />
+    </linearGradient>
+    <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" />
+    </filter>
+  </defs>
+
+  <!-- Base container -->
+  <rect width="512" height="512" rx="120" fill="url(#premiumGradient)" />
+  
+  <!-- Subtle inner glow / border -->
+  <rect width="504" height="504" x="4" y="4" rx="116" fill="transparent" stroke="#ffffff" stroke-width="4" stroke-opacity="0.3" />
+
+  <!-- Glassmorphism card effect behind logo -->
+  <rect x="120" y="120" width="272" height="272" rx="64" fill="#ffffff" fill-opacity="0.2" stroke="#ffffff" stroke-opacity="0.5" stroke-width="4" />
+
+  <!-- House Icon (Micasa) -->
+  <path d="M256 160 L160 240 V352 A16 16 0 0 0 176 368 H232 V288 H280 V368 H336 A16 16 0 0 0 352 352 V240 Z" fill="#ffffff" />
+  
+  <!-- Chimney or details -->
+  <path d="M330 190 V150 H360 V215 Z" fill="#ffffff" fill-opacity="0.8" />
+</svg>
