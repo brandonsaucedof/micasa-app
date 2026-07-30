@@ -68,7 +68,7 @@ export default function InventoryItem({ id, productId, name, unit, quantity, min
   };
 
   return (
-    <div className={`p-4 rounded-3xl glass-card flex flex-col space-y-4 transition-all duration-300 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${isPending ? 'opacity-70 scale-95' : 'opacity-100'} ${getStatusColor(optimisticStatus)} border`}>
+    <div className={`p-4 rounded-3xl glass-card flex flex-col space-y-4 transition-all duration-300 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${isPending ? 'opacity-70 scale-95' : 'opacity-100'} ${getStatusColor(optimisticStatus)} border ${showStatusMenu ? 'z-50 relative' : ''}`}>
       <div className="flex justify-between items-start">
         <div>
           <h3 className="font-extrabold text-slate-900 dark:text-white text-base leading-tight pr-2">{name}</h3>
@@ -76,37 +76,40 @@ export default function InventoryItem({ id, productId, name, unit, quantity, min
             <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Añadido por: {addedByName}</p>
           )}
         </div>
-        
-        {/* Status Dropdown */}
-        <div className="relative flex-shrink-0 z-20">
-          <button 
-            onClick={() => setShowStatusMenu(!showStatusMenu)}
-            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-full bg-white/60 dark:bg-slate-900/60 text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm border border-white/20 dark:border-slate-700/30 hover:bg-white dark:hover:bg-slate-800 transition-colors"
-          >
-            <span>{optimisticStatus}</span>
-            <ChevronDown className="w-3 h-3" />
-          </button>
-
+        {/* Actions Container */}
+        <div className="flex items-center space-x-2 relative z-20 shrink-0">
+          
           <button
             onClick={handleAddToList}
             disabled={isPending || addedToList}
-            className="ml-2 flex items-center space-x-1 px-2.5 py-1.5 rounded-full bg-primary-500 text-white text-[10px] font-black uppercase tracking-wider shadow-sm hover:bg-primary-600 transition-colors disabled:opacity-50"
+            className="flex items-center space-x-1 p-2 rounded-full bg-primary-500 text-white shadow-sm hover:bg-primary-600 transition-colors disabled:opacity-50 shrink-0"
           >
-            {addedToList ? <CheckCircle2 className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
+            {addedToList ? <CheckCircle2 className="w-3.5 h-3.5" /> : <ShoppingCart className="w-3.5 h-3.5" />}
           </button>
-          
-          {showStatusMenu && (
-            <div className="absolute right-0 mt-2 w-32 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/10 border border-slate-100 dark:border-slate-700/50 overflow-hidden z-30 animate-pop-in origin-top-right">
-              <button onClick={() => handleStatusChange("suficiente")} className="w-full text-left px-4 py-3 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">Suficiente</button>
-              <button onClick={() => handleStatusChange("poco")} className="w-full text-left px-4 py-3 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">Poco</button>
-              <button onClick={() => handleStatusChange("agotado")} className="w-full text-left px-4 py-3 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Agotado</button>
-              <div className="border-t border-slate-100 dark:border-slate-700/50"></div>
-              <button onClick={handleDelete} disabled={isPending} className="w-full flex items-center px-4 py-3 text-xs font-bold text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50">
-                <Trash2 className="w-3 h-3 mr-2" />
-                Eliminar
-              </button>
-            </div>
-          )}
+
+          {/* Status Dropdown */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowStatusMenu(!showStatusMenu)}
+              className="flex items-center space-x-1 px-2.5 py-1.5 rounded-full bg-white/60 dark:bg-slate-900/60 text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm border border-white/20 dark:border-slate-700/30 hover:bg-white dark:hover:bg-slate-800 transition-colors"
+            >
+              <span>{optimisticStatus}</span>
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            
+            {showStatusMenu && (
+              <div className="absolute right-0 mt-2 w-32 bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/20 border border-slate-100 dark:border-slate-700/50 overflow-hidden z-50 animate-pop-in origin-top-right">
+                <button onClick={() => handleStatusChange("suficiente")} className="w-full text-left px-4 py-3 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">Suficiente</button>
+                <button onClick={() => handleStatusChange("poco")} className="w-full text-left px-4 py-3 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">Poco</button>
+                <button onClick={() => handleStatusChange("agotado")} className="w-full text-left px-4 py-3 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Agotado</button>
+                <div className="border-t border-slate-100 dark:border-slate-700/50"></div>
+                <button onClick={handleDelete} disabled={isPending} className="w-full flex items-center px-4 py-3 text-xs font-bold text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50">
+                  <Trash2 className="w-3 h-3 mr-2" />
+                  Eliminar
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

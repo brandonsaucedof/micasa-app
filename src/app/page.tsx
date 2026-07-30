@@ -73,12 +73,9 @@ export default async function Home({
       {/* Premium Header */}
       <header className="px-6 pt-8 pb-4 flex items-center justify-between z-10 animate-fade-in">
         <div className="flex items-center space-x-4">
-          <Link href="/profile" className="relative group">
-            <div className="absolute inset-0 bg-primary-500 rounded-full blur-md opacity-40 group-hover:opacity-70 transition-opacity"></div>
-            <div className="relative w-12 h-12 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center border border-white/50 dark:border-slate-700/50 shadow-lg">
-              <User className="w-6 h-6" />
-            </div>
-          </Link>
+          <div className="relative w-12 h-12 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center border border-white/50 dark:border-slate-700/50 shadow-lg">
+            <User className="w-6 h-6" />
+          </div>
           <div>
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hola, {firstName}</p>
             <h1 className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center">
@@ -138,21 +135,7 @@ export default async function Home({
           </Link>
         </div>
 
-        {/* Settings/Info Widget */}
-        <Link href="/family" className="glass-panel p-5 rounded-3xl flex items-center justify-between group cursor-pointer hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
-              <Settings className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-900 dark:text-white">Configurar hogar</h3>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Invita miembros o ajusta reglas</p>
-            </div>
-          </div>
-          <div className="text-slate-400 group-hover:text-primary-500 transition-colors">
-            <span className="text-xl">→</span>
-          </div>
-        </Link>
+
 
       </main>
 
@@ -177,6 +160,10 @@ export default async function Home({
           <Link href="/expenses" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
             <TrendingUp className="w-6 h-6 mb-1" />
             <span className="text-[10px] font-bold">Analytics</span>
+          </Link>
+          <Link href="/settings" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+            <Settings className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">Ajustes</span>
           </Link>
         </nav>
       </div>

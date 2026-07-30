@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Package, Plus, Search, ShoppingCart, TrendingUp, Home as HomeIcon, Archive } from "lucide-react";
+import { Package, Plus, Search, ShoppingCart, TrendingUp, Home as HomeIcon, Archive, Settings } from "lucide-react";
 import InventoryItem from "./InventoryItem";
 import InventoryTabs from "./InventoryTabs";
 
@@ -172,6 +172,10 @@ export default async function InventoryPage({
           <Link href="/expenses" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
             <TrendingUp className="w-6 h-6 mb-1" />
             <span className="text-[10px] font-bold">Analytics</span>
+          </Link>
+          <Link href="/settings" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+            <Settings className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">Ajustes</span>
           </Link>
         </nav>
       </div>

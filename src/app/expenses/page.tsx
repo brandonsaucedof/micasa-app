@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { TrendingUp, Receipt, Calendar, Package, ShoppingCart, Home as HomeIcon } from "lucide-react";
+import { TrendingUp, Receipt, Calendar, Package, ShoppingCart, Home as HomeIcon, Settings } from "lucide-react";
 import MonthSelector from "@/components/MonthSelector";
 import AnalyticsContent from "./AnalyticsContent";
 
@@ -92,8 +92,12 @@ export default async function ExpensesPage({
           <button className="flex flex-col items-center p-2 text-purple-500 dark:text-purple-400 relative">
             <div className="absolute -top-1 w-8 h-1 bg-purple-500 dark:bg-purple-400 rounded-full"></div>
             <TrendingUp className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-bold">Gastos</span>
+            <span className="text-[10px] font-bold">Analytics</span>
           </button>
+          <Link href="/settings" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+            <Settings className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">Ajustes</span>
+          </Link>
         </nav>
       </div>
     </div>
