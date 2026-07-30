@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'App compartida para gestionar compras, inventario y gastos del hogar.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#4f46e5',
+    background_color: '#020617',
+    theme_color: '#6366f1',
     orientation: 'portrait-primary',
     icons: [
       {

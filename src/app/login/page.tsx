@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { login } from "@/app/actions/auth";
-import { Home, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
+import { Home, Mail, Lock, ArrowRight, AlertCircle, Sparkles } from "lucide-react";
 
 export default async function LoginPage({
   searchParams,
@@ -11,35 +11,47 @@ export default async function LoginPage({
   const message = params?.message;
 
   return (
-    <div className="flex-1 flex flex-col px-6 py-12 justify-center bg-gradient-to-br from-indigo-50/50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950">
-      <div className="mx-auto w-full max-w-sm flex flex-col space-y-6">
-        <div className="flex flex-col items-center justify-center text-center space-y-2">
-          <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 mb-2">
-            <Home className="w-6 h-6" />
+    <div className="flex-1 flex flex-col justify-center items-center p-6 min-h-screen">
+      
+      {/* Animated Header */}
+      <div className="w-full max-w-sm mb-8 flex flex-col items-center animate-fade-in">
+        <div className="relative mb-4">
+          <div className="absolute inset-0 bg-primary-500 blur-xl opacity-50 rounded-full"></div>
+          <div className="relative w-16 h-16 bg-gradient-premium text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+            <Home className="w-8 h-8" />
+            <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-300 animate-pulse-slow" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Bienvenido a Micasa
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Ingresa tus credenciales para continuar
-          </p>
+        </div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          Micasa
+        </h1>
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1 text-center">
+          Tu hogar inteligente, simplificado.
+        </p>
+      </div>
+
+      {/* Glassmorphic Login Form */}
+      <div className="w-full max-w-sm glass-panel p-8 animate-slide-up">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Iniciar sesión</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Ingresa tus credenciales para continuar</p>
         </div>
 
         {message && (
-          <div className="bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 p-3 rounded-lg flex items-center text-sm border border-red-100 dark:border-red-900/50">
-            <AlertCircle className="w-4 h-4 mr-2 flex-shrink-0" />
-            <p>{message}</p>
+          <div className="mb-6 bg-red-500/10 text-red-600 dark:text-red-400 p-3.5 rounded-xl flex items-start text-sm border border-red-500/20 animate-pop-in">
+            <AlertCircle className="w-5 h-5 mr-2.5 flex-shrink-0 mt-0.5" />
+            <p className="font-medium">{message}</p>
           </div>
         )}
 
-        <form action={login} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="email">
+        <form action={login} className="space-y-5">
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 ml-1" htmlFor="email">
               Correo electrónico
             </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <Mail className="w-4 h-4" />
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors">
+                <Mail className="w-5 h-5" />
               </div>
               <input
                 id="email"
@@ -47,23 +59,23 @@ export default async function LoginPage({
                 type="email"
                 placeholder="tu@email.com"
                 required
-                className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-shadow"
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all shadow-sm placeholder:text-slate-400"
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="password">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between ml-1">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300" htmlFor="password">
                 Contraseña
               </label>
-              <Link href="/reset-password" className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+              <Link href="/reset-password" className="text-xs font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <Lock className="w-4 h-4" />
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-500 transition-colors">
+                <Lock className="w-5 h-5" />
               </div>
               <input
                 id="password"
@@ -71,24 +83,24 @@ export default async function LoginPage({
                 type="password"
                 placeholder="••••••••"
                 required
-                className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-shadow"
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all shadow-sm placeholder:text-slate-400"
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center py-2.5 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white rounded-xl text-sm font-medium transition-colors shadow-sm"
+            className="w-full flex items-center justify-center py-3.5 px-4 bg-gradient-premium hover:shadow-lg hover:shadow-primary-500/30 text-white rounded-xl text-sm font-bold transition-all transform hover:-translate-y-0.5 active:translate-y-0"
           >
-            Iniciar sesión
-            <ArrowRight className="w-4 h-4 ml-2" />
+            Ingresar a mi hogar
+            <ArrowRight className="w-5 h-5 ml-2" />
           </button>
         </form>
 
-        <div className="text-center text-sm text-slate-500 dark:text-slate-400">
+        <div className="mt-6 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
           ¿No tienes una cuenta?{" "}
-          <Link href="/register" className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
-            Regístrate
+          <Link href="/register" className="font-bold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
+            Crear cuenta nueva
           </Link>
         </div>
       </div>

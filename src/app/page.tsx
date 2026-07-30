@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { LogOut, Plus, ShoppingCart, Package, TrendingUp, Bell, User } from "lucide-react";
+import { LogOut, Plus, ShoppingCart, Package, TrendingUp, Bell, User, Settings, Zap } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -28,95 +28,123 @@ export default async function Home() {
   const firstName = user.user_metadata?.name?.split(" ")[0] || "Usuario";
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-950">
-      {/* Header */}
-      <header className="bg-white dark:bg-slate-900 px-6 py-5 rounded-b-[2rem] shadow-sm flex items-center justify-between z-10">
-        <div className="flex items-center space-x-3">
-          <Link href="/profile">
-            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors">
-              <User className="w-5 h-5" />
+    <div className="flex-1 flex flex-col relative h-full">
+      
+      {/* Premium Header */}
+      <header className="px-6 pt-8 pb-4 flex items-center justify-between z-10 animate-fade-in">
+        <div className="flex items-center space-x-4">
+          <Link href="/profile" className="relative group">
+            <div className="absolute inset-0 bg-primary-500 rounded-full blur-md opacity-40 group-hover:opacity-70 transition-opacity"></div>
+            <div className="relative w-12 h-12 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center border border-white/50 dark:border-slate-700/50 shadow-lg">
+              <User className="w-6 h-6" />
             </div>
           </Link>
           <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Hola, {firstName}</p>
-            <h1 className="text-sm font-bold text-slate-900 dark:text-white flex items-center">
-              🏠 {currentHome.name}
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hola, {firstName}</p>
+            <h1 className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center">
+              {currentHome.name}
             </h1>
           </div>
         </div>
-        <button className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors relative">
-          <Bell className="w-6 h-6" />
-          <span className="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+        <button className="p-2.5 text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 glass rounded-full transition-all hover:scale-105 relative shadow-sm">
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-800 animate-pulse-slow"></span>
         </button>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6 space-y-6 pb-24">
+      <main className="flex-1 overflow-y-auto px-6 pt-4 pb-32 space-y-6 no-scrollbar z-10 animate-slide-up">
         
+        {/* Hero Card */}
+        <div className="relative overflow-hidden bg-gradient-premium p-6 rounded-3xl shadow-xl shadow-primary-500/20 text-white">
+          <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+          <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-purple-500/40 rounded-full blur-2xl"></div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center space-x-2 mb-1">
+              <Zap className="w-4 h-4 text-yellow-300" />
+              <p className="text-xs font-bold text-primary-100 uppercase tracking-widest">Resumen del mes</p>
+            </div>
+            <h2 className="text-3xl font-extrabold mb-4 mt-2">Bs 0 <span className="text-sm font-medium text-primary-200">gastados</span></h2>
+            
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+                <p className="text-xs font-medium text-primary-100">Dentro del presupuesto</p>
+              </div>
+              <Link href="/expenses" className="text-xs font-bold hover:text-primary-200 transition-colors flex items-center">
+                Ver más <span className="ml-1">→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-indigo-500 text-white p-4 rounded-2xl shadow-md shadow-indigo-200 dark:shadow-none relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-            <ShoppingCart className="w-6 h-6 mb-3 text-indigo-100" />
-            <h3 className="text-2xl font-bold">0</h3>
-            <p className="text-xs font-medium text-indigo-100 mt-1">Por comprar</p>
-          </div>
+          <Link href="/shopping" className="glass-card p-5 rounded-3xl flex flex-col group">
+            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <ShoppingCart className="w-5 h-5" />
+            </div>
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">0</h3>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">Por comprar</p>
+          </Link>
           
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-            <Package className="w-6 h-6 mb-3 text-orange-500" />
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">0</h3>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">En inventario</p>
-          </div>
+          <Link href="/inventory" className="glass-card p-5 rounded-3xl flex flex-col group">
+            <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Package className="w-5 h-5" />
+            </div>
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">0</h3>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">En inventario</p>
+          </Link>
         </div>
 
-        {/* Expenses Widget */}
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Gastado este mes</p>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Bs 0</h2>
+        {/* Settings/Info Widget */}
+        <div className="glass-panel p-5 rounded-3xl flex items-center justify-between group cursor-pointer hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
+              <Settings className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white">Configurar hogar</h3>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Invita miembros o ajusta reglas</p>
+            </div>
           </div>
-          <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center">
-            <TrendingUp className="w-6 h-6" />
+          <div className="text-slate-400 group-hover:text-primary-500 transition-colors">
+            <span className="text-xl">→</span>
           </div>
-        </div>
-
-        {/* Setup Call to Action */}
-        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 p-5 rounded-2xl text-center space-y-3">
-          <h3 className="font-bold text-indigo-900 dark:text-indigo-100">Configura tu Casa</h3>
-          <p className="text-sm text-indigo-700 dark:text-indigo-300">
-            Crea una casa o únete a una existente para empezar a gestionar tus compras.
-          </p>
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 px-4 rounded-xl transition-colors shadow-sm">
-            Crear Casa
-          </button>
         </div>
 
       </main>
 
       {/* Floating Action Button */}
-      <button className="absolute bottom-20 right-6 w-14 h-14 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 transition-all z-20">
-        <Plus className="w-6 h-6" />
+      <button className="absolute bottom-24 right-6 w-16 h-16 bg-gradient-premium hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-1 active:translate-y-0 text-white rounded-full flex items-center justify-center transition-all z-20">
+        <Plus className="w-8 h-8" />
       </button>
 
-      {/* Bottom Navigation */}
-      <nav className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-6 py-3 flex justify-between items-center z-10 sticky bottom-0">
-        <button className="flex flex-col items-center p-2 text-indigo-600 dark:text-indigo-400">
-          <HomeIcon className="w-6 h-6 mb-1" />
-          <span className="text-[10px] font-medium">Inicio</span>
-        </button>
-        <Link href="/shopping" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-          <ShoppingCart className="w-6 h-6 mb-1" />
-          <span className="text-[10px] font-medium">Compras</span>
-        </Link>
-        <Link href="/inventory" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-          <Package className="w-6 h-6 mb-1" />
-          <span className="text-[10px] font-medium">Casa</span>
-        </Link>
-        <Link href="/expenses" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-          <TrendingUp className="w-6 h-6 mb-1" />
-          <span className="text-[10px] font-medium">Gastos</span>
-        </Link>
-      </nav>
+      {/* Premium Floating Bottom Navigation */}
+      <div className="absolute bottom-6 left-6 right-6 z-20">
+        <nav className="glass-panel rounded-full px-6 py-3.5 flex justify-between items-center shadow-2xl">
+          <button className="flex flex-col items-center p-2 text-primary-600 dark:text-primary-400 relative">
+            <div className="absolute -top-1 w-8 h-1 bg-primary-600 dark:bg-primary-400 rounded-full"></div>
+            <HomeIcon className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">Inicio</span>
+          </button>
+          <Link href="/shopping" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+            <ShoppingCart className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">Compras</span>
+          </Link>
+          <Link href="/inventory" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+            <Package className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">Casa</span>
+          </Link>
+          <Link href="/expenses" className="flex flex-col items-center p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+            <TrendingUp className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold">Gastos</span>
+          </Link>
+        </nav>
+      </div>
     </div>
   );
 }
@@ -132,7 +160,7 @@ function HomeIcon(props: any) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
