@@ -71,9 +71,7 @@ export default async function InventoryPage() {
           </div>
           Inventario
         </h1>
-        <button className="p-2.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 glass rounded-full transition-all hover:scale-105 relative shadow-sm">
-          <Search className="w-5 h-5" />
-        </button>
+
       </header>
 
       {/* Main Content */}

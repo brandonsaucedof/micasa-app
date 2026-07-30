@@ -46,10 +46,7 @@ export default async function Home() {
             </h1>
           </div>
         </div>
-        <button className="p-2.5 text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 glass rounded-full transition-all hover:scale-105 relative shadow-sm">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-800 animate-pulse-slow"></span>
-        </button>
+
       </header>
 
       {/* Main Content */}
@@ -101,7 +98,7 @@ export default async function Home() {
         </div>
 
         {/* Settings/Info Widget */}
-        <div className="glass-panel p-5 rounded-3xl flex items-center justify-between group cursor-pointer hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors">
+        <Link href="/family" className="glass-panel p-5 rounded-3xl flex items-center justify-between group cursor-pointer hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
               <Settings className="w-6 h-6" />
@@ -114,14 +111,11 @@ export default async function Home() {
           <div className="text-slate-400 group-hover:text-primary-500 transition-colors">
             <span className="text-xl">→</span>
           </div>
-        </div>
+        </Link>
 
       </main>
 
-      {/* Floating Action Button */}
-      <button className="absolute bottom-24 right-6 w-16 h-16 bg-gradient-premium hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-1 active:translate-y-0 text-white rounded-full flex items-center justify-center transition-all z-20">
-        <Plus className="w-8 h-8" />
-      </button>
+
 
       {/* Premium Floating Bottom Navigation */}
       <div className="absolute bottom-6 left-6 right-6 z-20">
