@@ -11,6 +11,14 @@ export const metadata: Metadata = {
   title: "Micasa",
   description: "App compartida para gestionar compras, inventario y gastos del hogar.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Micasa",
+  },
+  icons: {
+    apple: "/icon-192x192.png",
+  },
 };
 
 export const viewport: Viewport = {
