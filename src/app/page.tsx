@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser, getHomeMembership } from "@/utils/supabase/session";
 import { LogOut, Plus, ShoppingCart, Package, TrendingUp, Bell, User, Settings, Zap } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -10,8 +11,7 @@ export default async function Home({
 }: {
   searchParams: Promise<{ month?: string }>;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const params = await searchParams;
   
@@ -20,12 +20,7 @@ export default async function Home({
   }
 
   // Fetch user's home
-  const { data: membership } = await supabase
-    .from("home_members")
-    .select("homes(id, name)")
-    .eq("user_id", user.id)
-    .limit(1)
-    .single();
+  const membership = await getHomeMembership();
 
   if (!membership || !membership.homes) {
     redirect("/setup");
@@ -41,18 +36,16 @@ export default async function Home({
   const startDate = new Date(selectedMonthStr + "-01T00:00:00Z");
   const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1).toISOString();
 
-  // Fetch total purchases for this month
-  const { data: purchases } = await supabase
-    .from("purchases")
-    .select("total_amount")
-    .eq("home_id", currentHome.id)
-    .gte("created_at", startDate.toISOString())
-    .lt("created_at", endDate);
+  const supabase = await createClient();
 
-  const totalSpent = purchases?.reduce((sum, p) => sum + Number(p.total_amount), 0) || 0;
-
-  // Fetch quick stats
-  const [shoppingCountRes, inventoryCountRes] = await Promise.all([
+  // Combine queries into a single Promise.all
+  const [purchasesRes, shoppingCountRes, inventoryCountRes] = await Promise.all([
+    supabase
+      .from("purchases")
+      .select("total_amount")
+      .eq("home_id", currentHome.id)
+      .gte("created_at", startDate.toISOString())
+      .lt("created_at", endDate),
     supabase
       .from("shopping_items")
       .select("id", { count: "exact", head: true })
@@ -64,6 +57,9 @@ export default async function Home({
       .eq("home_id", currentHome.id)
   ]);
 
+  const purchases = purchasesRes.data;
+  const totalSpent = purchases?.reduce((sum, p) => sum + Number(p.total_amount), 0) || 0;
+  
   const shoppingCount = shoppingCountRes.count || 0;
   const inventoryCount = inventoryCountRes.count || 0;
 

@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser, getHomeMembership } from "@/utils/supabase/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { TrendingUp, Receipt, Calendar, Package, ShoppingCart, Home as HomeIcon, Settings } from "lucide-react";
@@ -10,8 +11,7 @@ export default async function ExpensesPage({
 }: {
   searchParams: Promise<{ month?: string }>;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) redirect("/login");
 
@@ -23,8 +23,10 @@ export default async function ExpensesPage({
   const startDate = new Date(selectedMonthStr + "-01T00:00:00Z");
   const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1).toISOString();
 
-  const { data: membership } = await supabase.from("home_members").select("home_id").eq("user_id", user.id).single();
+  const membership = await getHomeMembership();
   if (!membership) redirect("/setup");
+
+  const supabase = await createClient();
 
   const [purchasesRes, shoppingItemsRes] = await Promise.all([
     supabase.from("purchases")
@@ -37,13 +39,16 @@ export default async function ExpensesPage({
           name
         )
       `)
+      .eq("home_id", membership.home_id)
       .gte("created_at", startDate.toISOString())
       .lt("created_at", endDate)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .limit(200),
     supabase.from("shopping_items")
       .select("id, name, planning_week, purchase_id")
       .eq("home_id", membership.home_id)
       .not("purchase_id", "is", null)
+      .limit(500)
   ]);
 
   const { data: purchases } = purchasesRes;

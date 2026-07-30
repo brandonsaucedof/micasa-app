@@ -4,17 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
+import { getCurrentUser, getHomeMembership } from "@/utils/supabase/session";
+
 async function getHomeId() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data: membership } = await supabase
-    .from("home_members")
-    .select("home_id")
-    .eq("user_id", user.id)
-    .single();
-
+  const membership = await getHomeMembership();
   return membership?.home_id || null;
 }
 
@@ -55,7 +48,7 @@ export async function createProduct(formData: FormData) {
   
   const supabase = await createClient();
   
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return redirect("/login");
 
   // 1. Crear producto
@@ -199,7 +192,7 @@ export async function addToShoppingList(inventoryId: string) {
 
 export async function deleteInventoryProduct(productId: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) return;
 
   const homeId = await getHomeId();

@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser, getHomeMembership } from "@/utils/supabase/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ShoppingCart, Plus, ArrowRight, Package, TrendingUp, Home as HomeIcon, Settings } from "lucide-react";
@@ -12,27 +13,27 @@ export default async function ShoppingPage({
 }: {
   searchParams: Promise<{ week?: string }>;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const params = await searchParams;
   const currentWeek = params?.week || "Semana 1";
 
   if (!user) redirect("/login");
 
-  const [membershipRes, itemsRes] = await Promise.all([
-    supabase.from("home_members").select("home_id").eq("user_id", user.id).single(),
-    // Request planning_week. It requires the new migration!
-    supabase.from("shopping_items").select("id, name, is_purchased, planning_week").is("purchase_id", null).order("created_at", { ascending: false })
-  ]);
-
-  const { data: membership } = membershipRes;
-  const { data: items } = itemsRes;
-
+  const membership = await getHomeMembership();
   if (!membership) redirect("/setup");
 
-  // Filter items by current week (if planning_week is null, assume Semana 1)
-  const currentItems = items?.filter(i => (i.planning_week || "Semana 1") === currentWeek) || [];
+  const supabase = await createClient();
+  const { data: items } = await supabase
+    .from("shopping_items")
+    .select("id, name, is_purchased, planning_week")
+    .eq("home_id", membership.home_id)
+    .eq("planning_week", currentWeek)
+    .is("purchase_id", null)
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  const currentItems = items || [];
   const checkedCount = currentItems.filter(i => i.is_purchased).length || 0;
 
   return (

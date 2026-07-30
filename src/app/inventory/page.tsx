@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser, getHomeMembership } from "@/utils/supabase/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Package, Plus, Search, ShoppingCart, TrendingUp, Home as HomeIcon, Archive, Settings } from "lucide-react";
@@ -10,8 +11,7 @@ export default async function InventoryPage({
 }: {
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const params = await searchParams;
   const currentTab = params?.tab || "active";
@@ -20,9 +20,14 @@ export default async function InventoryPage({
     redirect("/login");
   }
 
-  const [membershipRes, inventoryItemsRes] = await Promise.all([
-    supabase.from("home_members").select("home_id").eq("user_id", user.id).single(),
-    supabase.from("inventory").select(`
+  const membership = await getHomeMembership();
+
+  if (!membership) {
+    redirect("/setup");
+  }
+
+  const supabase = await createClient();
+  const { data: inventoryItems } = await supabase.from("inventory").select(`
         id,
         quantity,
         status,
@@ -41,15 +46,10 @@ export default async function InventoryPage({
             icon
           )
         )
-      `).order("updated_at", { ascending: false })
-  ]);
-
-  const { data: membership } = membershipRes;
-  const { data: inventoryItems } = inventoryItemsRes;
-
-  if (!membership) {
-    redirect("/setup");
-  }
+      `)
+      .eq("home_id", membership.home_id)
+      .order("updated_at", { ascending: false })
+      .limit(200);
 
   const activeInventory: Record<string, any[]> = {};
   const archivedInventory: Record<string, any[]> = {};
