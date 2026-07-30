@@ -9,28 +9,26 @@ export default async function ExpensesPage() {
 
   if (!user) redirect("/login");
 
-  const { data: membership } = await supabase
-    .from("home_members")
-    .select("home_id")
-    .eq("user_id", user.id)
-    .single();
+  // Ejecutar ambas consultas en paralelo para eliminar el lag (waterfall).
+  // La tabla 'purchases' usa RLS, por lo que no es estrictamente necesario 
+  // esperar el home_id para filtrar, RLS lo hará automáticamente.
+  const [membershipRes, purchasesRes] = await Promise.all([
+    supabase.from("home_members").select("home_id").eq("user_id", user.id).single(),
+    supabase.from("purchases")
+      .select(`
+        id,
+        total_amount,
+        store_name,
+        created_at,
+        users (
+          name
+        )
+      `)
+      .order("created_at", { ascending: false })
+  ]);
 
-  if (!membership) redirect("/setup");
-
-  // Obtener compras con el nombre de quien compró
-  const { data: purchases } = await supabase
-    .from("purchases")
-    .select(`
-      id,
-      total_amount,
-      store_name,
-      created_at,
-      users (
-        name
-      )
-    `)
-    .eq("home_id", membership.home_id)
-    .order("created_at", { ascending: false });
+  const { data: membership } = membershipRes;
+  const { data: purchases } = purchasesRes;
 
   const totalSpent = purchases?.reduce((sum, p) => sum + Number(p.total_amount), 0) || 0;
 
