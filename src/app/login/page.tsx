@@ -78,7 +78,7 @@ export default async function LoginPage({
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-sm font-medium transition-colors shadow-sm"
+            className="w-full flex items-center justify-center py-2.5 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white rounded-xl text-sm font-medium transition-colors shadow-sm"
           >
             Iniciar sesión
             <ArrowRight className="w-4 h-4 ml-2" />
